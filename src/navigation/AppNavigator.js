@@ -1,7 +1,8 @@
 import React from 'react';
+import { View, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -54,7 +55,7 @@ import MessagesScreen from '../screens/messages/MessagesScreen';
 import TrackOrderScreen from '../screens/tracking/TrackOrderScreen';
 
 const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
+const Tab = createMaterialTopTabNavigator();
 
 const DashboardWrapper = () => {
   const { userType } = useApp();
@@ -67,71 +68,103 @@ const TabNavigator = () => {
   const insets = useSafeAreaInsets();
 
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarStyle: {
-          backgroundColor: COLORS.white,
-          borderTopWidth: 1,
-          borderTopColor: COLORS.border,
-          paddingTop: 8,
-          paddingBottom: Math.max(insets.bottom, 8),
-          height: 65 + insets.bottom,
-        },
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.gray,
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
-        },
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-
-          if (route.name === 'Dashboard') {
-            iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'OrderTab') {
-            iconName = focused ? 'cart' : 'cart-outline';
-          } else if (route.name === 'OrdersTab') {
-            iconName = focused ? 'receipt' : 'receipt-outline';
-          } else if (route.name === 'AccountTab') {
-            iconName = focused ? 'person' : 'person-outline';
-          }
-
-          return <Ionicons name={iconName} size={24} color={color} />;
-        },
-      })}
-    >
-      <Tab.Screen
-        name="Dashboard"
-        component={DashboardWrapper}
-        options={{ tabBarLabel: 'Home' }}
-      />
-      <Tab.Screen
-        name="OrderTab"
-        component={OrderChicksScreen}
-        options={{
-          tabBarLabel: 'Order',
-          tabBarBadge: cartCount > 0 ? cartCount : null,
-          tabBarBadgeStyle: {
-            backgroundColor: COLORS.primary,
-            color: COLORS.white,
-            fontSize: 10,
+    <View style={styles.container}>
+      <Tab.Navigator
+        tabBarPosition="bottom"
+        screenOptions={({ route }) => ({
+          swipeEnabled: true,
+          tabBarScrollEnabled: false,
+          tabBarStyle: {
+            backgroundColor: COLORS.white,
+            borderTopWidth: 1,
+            borderTopColor: COLORS.border,
+            paddingBottom: Math.max(insets.bottom, 8),
+            height: 65 + insets.bottom,
+            elevation: 8,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
           },
-        }}
-      />
-      <Tab.Screen
-        name="OrdersTab"
-        component={MyOrdersScreen}
-        options={{ tabBarLabel: 'Orders' }}
-      />
-      <Tab.Screen
-        name="AccountTab"
-        component={AccountScreen}
-        options={{ tabBarLabel: 'Account' }}
-      />
-    </Tab.Navigator>
+          tabBarActiveTintColor: COLORS.primary,
+          tabBarInactiveTintColor: COLORS.gray,
+          tabBarLabelStyle: {
+            fontSize: 11,
+            fontWeight: '600',
+            textTransform: 'none',
+            marginTop: 4,
+          },
+          tabBarIndicatorStyle: {
+            backgroundColor: COLORS.primary,
+            height: 3,
+            borderRadius: 2,
+            position: 'absolute',
+            top: 0,
+          },
+          tabBarIconStyle: {
+            marginTop: 8,
+          },
+          tabBarShowIcon: true,
+          tabBarIcon: ({ focused, color }) => {
+            let iconName;
+
+            if (route.name === 'Dashboard') {
+              iconName = focused ? 'home' : 'home-outline';
+            } else if (route.name === 'OrderTab') {
+              iconName = focused ? 'cart' : 'cart-outline';
+            } else if (route.name === 'OrdersTab') {
+              iconName = focused ? 'receipt' : 'receipt-outline';
+            } else if (route.name === 'AccountTab') {
+              iconName = focused ? 'person' : 'person-outline';
+            }
+
+            return <Ionicons name={iconName} size={22} color={color} />;
+          },
+        })}
+      >
+        <Tab.Screen
+          name="Dashboard"
+          component={DashboardWrapper}
+          options={{ tabBarLabel: 'Home' }}
+        />
+        <Tab.Screen
+          name="OrderTab"
+          component={OrderChicksScreen}
+          options={{
+            tabBarLabel: 'Order',
+            tabBarBadge: cartCount > 0 ? () => (
+              <View style={styles.badge}>
+                <Ionicons name="ellipse" size={8} color={COLORS.primary} />
+              </View>
+            ) : undefined,
+          }}
+        />
+        <Tab.Screen
+          name="OrdersTab"
+          component={MyOrdersScreen}
+          options={{ tabBarLabel: 'Orders' }}
+        />
+        <Tab.Screen
+          name="AccountTab"
+          component={AccountScreen}
+          options={{ tabBarLabel: 'Account' }}
+        />
+      </Tab.Navigator>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+  },
+  badge: {
+    position: 'absolute',
+    top: -2,
+    right: -6,
+  },
+});
 
 const AppNavigator = () => {
   return (
